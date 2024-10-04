@@ -16,7 +16,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 8989, // Chọn một cổng khả dụng
+    port: 8080, // Chọn một cổng khả dụng
     hmr: {
       // Cấu hình Hot Module Replacement (HMR)
       protocol: "ws", // Sử dụng WebSocket cho HMR

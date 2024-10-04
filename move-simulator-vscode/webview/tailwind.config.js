@@ -6,6 +6,12 @@ export default {
   ],
   theme: {
     extend: {},
+    screens: {
+      'sidebar': { 'max': '700px' },
+      'mini': { 'max': '450px' },
+
+
+    },
   },
   plugins: [],
 }

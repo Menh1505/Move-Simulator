@@ -1,62 +1,92 @@
-import React, { useState } from 'react';
-import FileUpload from '../components/FileUpload';
-import WalletInput from '../components/WalletInput';
-import NetworkSelect from '../components/NetworkSelect';
-import DeployButton from '../components/DeployButton';
-import PageHeader from '../components/PageHeader';
+import React from 'react';
+//@ts-ignore
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft } from '../icons/ArrowLeft';
+import { Tab } from '../components/Tab';
+import { CoinIcon } from '../icons/CoinIcon';
+import { AptosIcon } from '../icons/AptosIcon';
+import { WalletIcon } from '../icons/WalletIcon';
+import { FaucetIcon } from '../icons/FaucetIcon';
 
-interface AptosProps {
-  setCurrentPage: (page: string) => void; // Accepts any string
-}
+const Aptos: React.FC = () => {
 
-const Aptos: React.FC<AptosProps> = ({ setCurrentPage }) => {
-  const [file, setFile] = useState<File | null>(null);
-  const [walletAddress, setWalletAddress] = useState<string>('');
-  const [privateKey, setPrivateKey] = useState<string>('');
-  const [network, setNetwork] = useState<string>('aptos-testnet');
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!file) {
-      alert('Please upload a file.');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('walletAddress', walletAddress);
-    formData.append('privateKey', privateKey);
-    formData.append('network', network);
-
-    try {
-      const response = await fetch('http://localhost:5000/deployAptos', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const result = await response.json();
-      alert(`Deployment successful: ${result.message}`);
-    } catch (error) {
-      alert('Error during deployment');
-    }
+  const navigate = useNavigate();
+  const handleNavigate = () => {
+    navigate(`/`);
   };
-
   return (
-    <div className="max-w-md mx-auto mt-10">
-      <PageHeader title="Deploy Aptos Contract" setCurrentPage={setCurrentPage} />
-      <form onSubmit={handleSubmit}>
-        <FileUpload file={file} setFile={setFile} />
-        <WalletInput
-          walletAddress={walletAddress}
-          setWalletAddress={setWalletAddress}
-          privateKey={privateKey}
-          setPrivateKey={setPrivateKey}
-        />
-        <NetworkSelect network={network} setNetwork={setNetwork} />
-        <DeployButton handleSubmit={(e) => { e.preventDefault(); handleSubmit(e as any); }} />
-      </form>
+    <div className="h-[200vh] grow overflow-y-scroll">
+      <div className="absolute w-[640px] sidebar:w-[400px] h-[766px] top-[-178px] left-[25px]">
+        <div className="flex flex-col w-full items-start gap-[64px] absolute top-[228px] left-0">
+          <div className="flex-col gap-[40px] p-[24px] self-stretch w-full flex-[0_0_auto] rounded-[16px] flex items-start relative">
+            <div
+              className="flex items-end gap-[8px] relative self-stretch w-full flex-[0_0_auto]"
+              onClick={handleNavigate}>
+              <ArrowLeft className="!relative !w-[24px] !h-[24px]" />
+              <AptosIcon className="!relative !w-[50px] !h-[50px] bg-white rounded-xl" />
+              <div className="relative w-fit mt-[-1.00px] [font-family:'Aeonik-Regular',Helvetica] font-normal text-white text-[18px] text-center tracking-[0] leading-[21.6px] whitespace-nowrap uppercase">
+                Aptos Move
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col items-center justify-center h-full w-full">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full">
+            <a
+                href="https://faucet.movementlabs.xyz/?network=aptos"
+                target="_blank"
+                className="px-4 py-2 bg-[#ffffff1a] text-white rounded hover:bg-[#ffffff33] transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1 w-full"
+              >
+
+                <Tab
+                  icon={<FaucetIcon className="!relative !w-[24px] !h-[24px]" />}
+                  title="Faucets"
+                />
+              </a>
+              <button
+                className="px-4 py-2 bg-[#ffffff1a] text-white rounded hover:bg-[#ffffff33] transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1 w-full"
+
+              >
+                <Link to="/account-balance" className="focus:outline-none"
+                  state={{ page: 'aptos' }}
+                >
+                  <Tab
+                    icon={<CoinIcon className="!relative !w-[24px] !h-[24px]" />}
+                    title="Account Balance"
+                  />
+                </Link>
+              </button>
+
+
+              <button
+                className="px-4 py-2 bg-[#ffffff1a] text-white rounded hover:bg-[#ffffff33] transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1 w-full"
+              >
+                <Link to="/your-address-aptos" className="focus:outline-none"
+                  state={{ page: 'aptos' }}
+                >
+                  <Tab
+                    icon={<WalletIcon className="!relative !w-[24px] !h-[24px]" />}
+                    title="YourAddress"
+                  />
+                </Link>
+              </button>
+              <button
+                className="px-4 py-2 bg-[#ffffff1a] text-white rounded hover:bg-[#ffffff33] transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1 w-full"
+              >
+                <Link to="/deploy" className="focus:outline-none"
+                  state={{ page: 'aptos' }}
+                >
+                  <Tab
+                    icon={<AptosIcon className="!relative !w-[24px] !h-[24px]" />}
+                    title="Deploy"
+                  />
+                </Link>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
   );
 };
 

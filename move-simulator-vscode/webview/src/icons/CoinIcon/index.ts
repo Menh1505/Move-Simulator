@@ -1,0 +1,1 @@
+export { CoinIcon } from "./CoinIcon";
