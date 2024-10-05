@@ -14,6 +14,8 @@ import { FoundryIcon } from './icons/FoundryIcon';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<string | null>(null); // Keep this generic
+  localStorage.clear();
+
 
   const togglePage = () => {
     setCurrentPage(currentPage === 'aptos' ? 'foundry' : 'aptos');

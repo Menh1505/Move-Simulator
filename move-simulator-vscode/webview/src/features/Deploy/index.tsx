@@ -14,8 +14,6 @@ const Deploy = () => {
     const [wallet, setWallet] = useState('');
     //@ts-ignore
     const [privatekey, setPrivateKey] = useState('');
-    const [walletError, setWalletError] = useState('');
-    const [accountError, setAccountError] = useState('');
     const [keyError, setKeyError] = useState('');
     const [deploymentInfo, setDeploymentInfo] = useState('');
 
@@ -27,6 +25,9 @@ const Deploy = () => {
     const [fileName, setFileName] = useState<string | null>(null);
     //@ts-ignore
     const [modName, setModName] = useState('');
+
+    const [maxGas, setMaxGas] = useState<number | ''>(1000);
+    const [gasUnitPrice, setGasUnitPrice] = useState<number | ''>(1);
 
     const [selectedNetwork, setSelectedNetwork] = useState<string>('https://mevm.devnet.imola.movementlabs.xyz');
 
@@ -49,62 +50,7 @@ const Deploy = () => {
     //@ts-ignore
     const baseUrl = getBaseUrl();
 
-    const handleAccount = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setAccountError('');
-        if (value.length <= 64) {
-            setAccAddr(e.target.value);
-        } else if (value.length !== 64) {
-            setWalletError('Input must be exactly 64 characters long');
-        }
-    }
-    const handlePressAccount = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (!/^[0-9a-fA-F]*$/.test(e.key)) {
-            e.preventDefault();
-            setAccountError('Only hexadecimal characters are allowed.');
-        }
-    };
 
-    const handleWallet = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setWalletError('');
-
-        // Kiểm tra địa chỉ ví
-        if (
-            (value.length === 2 && value === '0x') ||
-            (value.startsWith('0x') && /^[0-9a-fA-F]{40}$/.test(value.slice(2)))
-        ) {
-            setWallet(value);
-            setWalletError('');
-        } else {
-            if (!value.startsWith('0x')) {
-                setWalletError('Input must start with "0x".');
-            } else if (page === 'aptos' && value.startsWith('0x') && value.length !== 66 || page === 'foundry' && value.startsWith('0x') && value.length !== 42) {
-                setWalletError(`${page === 'aptos' ? 'Input must be exactly 66 characters long.' : 'Input must be exactly 42 characters long.'}`);
-            } else if (value.length > 2 && !/^[0-9a-fA-F]*$/.test(value.slice(2))) {
-                setWalletError('Only hexadecimal characters are allowed.');
-            }
-        }
-    };
-
-    const handlePressWallet = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        const value = e.currentTarget.value;
-
-        if (value.startsWith('0x')) {
-            if (!/^[0-9a-fA-F]*$/.test(e.key) && e.key !== 'Backspace') {
-                e.preventDefault();
-                setWalletError('Only hexadecimal characters are allowed after "0x".');
-            }
-        } else {
-            if (value.length === 0 && e.key !== '0') {
-                e.preventDefault();
-                setWalletError('Input must start with "0x".');
-            } else if (value.length === 1 && e.key !== 'x') {
-                e.preventDefault();
-                setWalletError('Input must start with "0x".');
-            }
-        }
-    };
 
     const handleKey = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -168,11 +114,23 @@ const Deploy = () => {
         setModName(e.target.value);
     }
 
+    const handleMaxGasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setMaxGas(value === '' ? '' : Number(value)); // Convert to number or keep as empty string
+    };
+
+    const handleGasUnitPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setGasUnitPrice(value === '' ? '' : Number(value)); // Convert to number or keep as empty string
+    };
+
     const handleDeploy = async () => {
         setLoading(true);
         setApiError('');
         setDeploymentInfo('');
-        const url = 'http://3.107.36.227:3000/upload/solidity';
+
+        const url = 'http://3.26.212.161:3000/upload/solidity';
+
         try {
             const formData = new FormData();
             if (file) {
@@ -180,21 +138,25 @@ const Deploy = () => {
             } else {
                 throw new Error('No file selected for upload');
             }
-            formData.append('privateKey', privatekey);
-            formData.append('rpcUrl', selectedNetwork);
-    
+
+            if (page === 'aptos') {
+                formData.append('privateKey', privatekey);
+                formData.append('rpcUrl', selectedNetwork);
+            } else {
+                formData.append('privateKey', privatekey);
+                formData.append('rpcUrl', selectedNetwork);
+            }
             const response = await axios.post(url, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-    
             console.log("Deployment successful:", response.data);
             setDeploymentInfo(response.data);
             alert(`Deployment successful:\n${response.data}`);
         } catch (error) {
             console.error('Error during deployment:', error);
-    
+
             if (axios.isAxiosError(error)) {
                 setApiError(error.response?.data || 'Failed to deploy');
             } else {
@@ -204,7 +166,7 @@ const Deploy = () => {
             setLoading(false);
         }
     };
-    
+
     const navigate = useNavigate();
     const handleNavigate = () => {
         navigate(`/${page}`);
@@ -228,19 +190,6 @@ const Deploy = () => {
                             <div>
                                 <FileUpload file={file} setFile={setFile} page={page} setFileName={setFileName} />
                             </div>
-                            <div>
-                                <label
-                                    className=" block text-white text-xl font-semibold mb-2 text-gray-700"
-                                >Wallet Address</label>
-                                <input
-                                    className={`w-full px-5 py-4 text-[#8f8f8f] text-[20px] border border-[#5a5a5a] rounded-lg bg-[#0e0f0e] `}
-                                    type="text"
-                                    onChange={handleWallet}
-                                    onKeyPress={handlePressWallet}
-                                    maxLength={page === 'aptos' ? 66 : 42}
-                                />
-                                {walletError && <p className="text-red-500">{walletError}</p>}
-                            </div>
                             <div className={`${page === 'aptos' ? '' : 'hidden'}`}>
                                 <label
                                     className=" block text-white text-xl font-semibold mb-2 text-gray-700"
@@ -249,24 +198,9 @@ const Deploy = () => {
                                     className={`w-full px-5 py-4 text-[#8f8f8f] text-[20px] border border-[#5a5a5a] rounded-lg bg-[#0e0f0e] `}
                                     type="text"
                                     onChange={handleModName}
-                                    disabled={page === 'aptos' ? false : true}
 
                                 />
                             </div>
-                            <div className={`${page === 'aptos' ? '' : 'hidden'}`}>
-                                <label
-                                    className=" block text-white text-xl font-semibold mb-2 text-gray-700"
-                                >Account Address</label>
-                                <input
-                                    className={` w-full px-5 py-4 text-[#8f8f8f] text-[20px] border border-[#5a5a5a] rounded-lg bg-[#0e0f0e] `}
-                                    type="text"
-                                    onChange={handleAccount}
-                                    onKeyPress={handlePressAccount}
-                                    maxLength={64}
-                                />
-                                {accountError && <p className="text-red-500">{accountError}</p>}
-                            </div>
-
                             <div>
                                 <label
                                     className=" block text-white text-xl font-semibold mb-2 text-gray-700"
@@ -279,6 +213,34 @@ const Deploy = () => {
                                     maxLength={page === 'aptos' ? 66 : 64}
                                 />
                                 {keyError && <p className="text-red-500">{keyError}</p>}
+                            </div>
+                            <div className={`${page === 'aptos' ? '' : 'hidden'}`}>
+                                <label
+                                    className=" block text-white text-xl font-semibold mb-2 text-gray-700"
+                                >Max Gas</label>
+                                <input
+                                    type="number"
+                                    placeholder="Max Gas"
+                                    value={maxGas}
+                                    onChange={handleMaxGasChange}
+                                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                    max={1000000000}
+                                />
+                            </div>
+
+                            {/* Gas Unit Price Input */}
+                            <div className={`${page === 'aptos' ? '' : 'hidden'}`}>
+                                <label
+                                    className=" block text-white text-xl font-semibold mb-2 text-gray-700"
+                                >Gas Unit Price</label>
+                                <input
+                                    type="number"
+                                    placeholder="Gas Unit Price"
+                                    value={gasUnitPrice}
+                                    onChange={handleGasUnitPriceChange}
+                                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                    max={1000}
+                                />
                             </div>
                             <div>
                                 {page === 'aptos' && (
@@ -322,7 +284,7 @@ const Deploy = () => {
                             </div>
                             <div className="mt-5">
                                 <button
-                                    className={`w-full px-5 py-4 mt-4 text-white text-[18px] rounded-lg ${loading ? 'bg-gray-500' : 'bg-blue-500'} `}
+                                    className={`w-full px-5 py-4 mt-4 text-white text-[18px] rounded-lg ${loading ? 'bg-gray-500' : 'bg-blue-500'} hover:bg-blue-600 transition-colors`}
                                     onClick={handleDeploy}
                                     disabled={loading}>
                                     {loading ? <OrbitProgress color="#7d9cd9" size="small" text="" textColor="" /> : 'Deploy'}
@@ -334,7 +296,16 @@ const Deploy = () => {
                                 <div className="mt-4 p-4 bg-gray-800 text-white rounded-lg">
                                     <h3 className="text-lg font-semibold">Deployment Info:</h3>
                                     <pre className="whitespace-pre-wrap">{deploymentInfo}</pre>
+
                                 </div>
+                            )}
+                            {deploymentInfo && (
+                                <a
+                                    href='https://explorer.devnet.imola.movementnetwork.xyz'
+                                    className="w-full px-5 py-4 mt-4 text-white text-center text-[18px] rounded-lg bg-blue-500 hover:bg-blue-600 transition-colors"
+                                >
+                                    Explore
+                                </a>
                             )}
                         </div>
                     </div>

@@ -9,7 +9,6 @@ import { WalletIcon } from '../icons/WalletIcon';
 import { FaucetIcon } from '../icons/FaucetIcon';
 
 const Aptos: React.FC = () => {
-
   const navigate = useNavigate();
   const handleNavigate = () => {
     navigate(`/`);
@@ -31,7 +30,19 @@ const Aptos: React.FC = () => {
           </div>
           <div className="flex flex-col items-center justify-center h-full w-full">
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full">
-            <a
+              <button
+                className="px-4 py-2 bg-[#ffffff1a] text-white rounded hover:bg-[#ffffff33] transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1 w-full"
+              >
+                <Link to="/your-address-aptos" className="focus:outline-none"
+                  state={{ page: 'aptos' }}
+                >
+                  <Tab
+                    icon={<WalletIcon className="!relative !w-[24px] !h-[24px]" />}
+                    title="YourAddress"
+                  />
+                </Link>
+              </button>
+              <a
                 href="https://faucet.movementlabs.xyz/?network=aptos"
                 target="_blank"
                 className="px-4 py-2 bg-[#ffffff1a] text-white rounded hover:bg-[#ffffff33] transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1 w-full"
@@ -57,18 +68,7 @@ const Aptos: React.FC = () => {
               </button>
 
 
-              <button
-                className="px-4 py-2 bg-[#ffffff1a] text-white rounded hover:bg-[#ffffff33] transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1 w-full"
-              >
-                <Link to="/your-address-aptos" className="focus:outline-none"
-                  state={{ page: 'aptos' }}
-                >
-                  <Tab
-                    icon={<WalletIcon className="!relative !w-[24px] !h-[24px]" />}
-                    title="YourAddress"
-                  />
-                </Link>
-              </button>
+
               <button
                 className="px-4 py-2 bg-[#ffffff1a] text-white rounded hover:bg-[#ffffff33] transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1 w-full"
               >

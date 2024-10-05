@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
 import { ArrowLeft } from "../../icons/ArrowLeft";
@@ -6,20 +6,40 @@ import { AptosIcon } from "../../icons/AptosIcon";
 import { FoundryIcon } from "../../icons/FoundryIcon";
 
 const YourAddress = () => {
-    const [walletAddress, setWalletAddress] = useState<string>('');
-    const [privateKey, setPrivateKey] = useState<string>('');
-    const [publicKey, setPublicKey] = useState<string>('');
-
-    useEffect(() => {
-        // Tạo ví mới bằng ethers.js
+    const [walletAddress, setWalletAddress] = useState<string>(() => localStorage.getItem('walletAddress') || '');
+    const [privateKey, setPrivateKey] = useState<string>(() => localStorage.getItem('privateKey') || '');
+    const [publicKey, setPublicKey] = useState<string>(() => localStorage.getItem('publicKey') || '');
+    const createAccount = () => {
         const wallet = ethers.Wallet.createRandom();
-        setWalletAddress(wallet.address);
-        setPrivateKey(wallet.privateKey);
-        setPublicKey(wallet.publicKey);
-    }, []);
+        const address = wallet.address;
+        const privKey = wallet.privateKey.replace(/^0x/, '');
+        const pubKey = wallet.publicKey;
+
+        // Update state and store in localStorage
+        setWalletAddress(address);
+        setPrivateKey(privKey);
+        setPublicKey(pubKey);
+
+        localStorage.setItem('walletAddress', address);
+        localStorage.setItem('privateKey', privKey);
+        localStorage.setItem('publicKey', pubKey);
+
+    };
 
     const location = useLocation();
     const page = location.state?.page;
+
+    useEffect(() => {
+        const savedWalletAddress = localStorage.getItem('walletAddress') || '';
+        const savedPrivateKey = localStorage.getItem('privateKey') || '';
+        const savedPublicKey = localStorage.getItem('publicKey') || '';
+
+        // Set state from localStorage if values exist
+        setWalletAddress(savedWalletAddress);
+        setPrivateKey(savedPrivateKey);
+        setPublicKey(savedPublicKey);
+    }, []);
+
     const navigate = useNavigate();
     const handleNavigate = () => {
         navigate(`/${page}`);
@@ -36,7 +56,7 @@ const YourAddress = () => {
                             <ArrowLeft className="!relative !w-[24px] !h-[24px]" />
                             {page === 'aptos' ? <AptosIcon className="!relative !w-[24px] !h-[24px] bg-white rounded-xl" /> : <FoundryIcon className="!relative !w-[24px] !h-[24px] bg-white rounded-xl" />}
                             <div className="relative w-fit mt-[-1.00px] [font-family:'Aeonik-Regular',Helvetica] font-normal text-white text-[18px] text-center tracking-[0] leading-[21.6px] whitespace-nowrap uppercase">
-                                YourAddress {page}
+                                Create Account {page}
                             </div>
                         </div>
 
@@ -74,6 +94,22 @@ const YourAddress = () => {
                                     readOnly
                                 />
                             </div>
+                            <div className="mt-5">
+                                <button
+                                    className="w-full px-5 py-4 mt-4 text-white text-[18px] rounded-lg bg-blue-500 hover:bg-blue-600 transition-colors"
+                                    onClick={createAccount} // Use the function directly without wrapping it in another function
+                                >
+                                    Create Account
+                                </button>
+
+                                <button
+                                    className="w-full mt-3.5 px-5 py-4 text-white text-[18px] rounded-lg bg-blue-500 hover:bg-blue-600 transition-colors"
+                                    onClick={handleNavigate}
+                                >
+                                    Account already exists
+                                </button>
+                            </div>
+
                         </div>
                     </div>
                 </div>

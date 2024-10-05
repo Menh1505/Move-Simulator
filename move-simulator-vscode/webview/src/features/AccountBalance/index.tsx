@@ -72,10 +72,9 @@ const AccountBalance = () => {
                                     className="w-full px-5 py-4 text-[#8f8f8f] text-[20px] border border-[#5a5a5a] rounded-lg bg-[#0e0f0e]"
                                 >
                                     <option value="Move" className="bg-white text-[#8f8f8f]">Move</option>
-                                    <option value="Aptos" className="bg-white text-[#8f8f8f]">Aptos</option>
                                 </select>
                             </div>
-                            <div>
+                            <div className="hidden">
                                 <label
                                     className=" block text-white text-xl font-semibold mb-2 text-gray-700"
                                 >Balance</label>
