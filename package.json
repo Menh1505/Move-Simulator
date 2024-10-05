@@ -10,6 +10,7 @@
     "build:all": "npm run build:vscode && npm run build:server",
     "test:vscode": "cd move-simulator-vscode && npm test",
     "test:server": "cd move-simulator-server && npm test",
-    "test:all": "npm run test:vscode && npm run test:server"
+    "test:all": "npm run test:vscode && npm run test:server",
+    "install:all": "cd move-simulator-vscode && npm run install:all && cd ../move-simulator-server && npm install"
   }
 }
