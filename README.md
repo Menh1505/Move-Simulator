@@ -22,6 +22,18 @@ This project consists of two sub-projects: `move-simulator-vscode` and `move-sim
 - **`npm run test:server`**: This command navigates to the `move-simulator-server` directory and runs the tests.
 - **`npm run test:all`**: This command runs tests for both the `move-simulator-vscode` and `move-simulator-server` applications sequentially.
 
+### To debug the vscode extension
+- After cloning the repository, open the move-simulator-vscode folder in a new VS Code tab.
+- Run the command to install packages.
+```shell
+npm run install:all
+```
+- Run the command to build the webview.
+```shell
+npm run webview:build
+```
+- Press F5 to debug the extension.
+
 ## Additional Information
 
 - Ensure you have Node.js installed on your system. You can download it from [Node.js official website](https://nodejs.org/).

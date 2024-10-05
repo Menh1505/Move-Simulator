@@ -46,13 +46,15 @@
     }
   },
   "scripts": {
-    "install:all": "npm install && cd webview && npm install && npm install vite",
+    "install:all": "npm install && cd webview && npm install && npm install vite && npm install ethers",
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "debug": "node ./node_modules/vscode/bin/test",
+    "webview:build": "cd webview && npm run build"
   },
   "devDependencies": {
     "@types/node": "20.x",
