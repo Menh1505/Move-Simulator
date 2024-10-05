@@ -1,29 +1,40 @@
 //@ts-ignore
 import { Link, useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import { ArrowLeft } from "../../icons/ArrowLeft";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AptosIcon } from "../../icons/AptosIcon";
 import { FoundryIcon } from "../../icons/FoundryIcon";
+import { ethers } from "ethers";
 
 const AccountBalance = () => {
+    //@ts-ignore
+    const [walletAddress, setWalletAddress] = useState<string>(() => localStorage.getItem('walletAddress') || '');
     const [selectedCoin, setSelectedCoin] = useState('');
+    //@ts-ignore
+    const [balance, setBalance] = useState<string>('0');
     //@ts-ignore
     const [number, setNumber] = useState<number | string>('');
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedCoin(e.target.value);
         console.log(e.target.value)
     };
-    const handleBalance = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        if (value === '' || /^\d+$/.test(value)) {
-            setNumber(value === '' ? '' : Number(value));
-        }
-    };
-    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (!/[0-9]/.test(e.key)) {
-            e.preventDefault();
-        }
-    };
+
+
+    useEffect(() => {
+        const getBalance = async (address: string) => {
+            let provider = ethers.getDefaultProvider("https://mevm.devnet.imola.movementlabs.xyz");
+            if (!address) return; // Nếu địa chỉ không tồn tại, không làm gì cả
+            try {
+                const balance = await provider.getBalance(address);
+                const balanceMove = ethers.formatUnits(balance, 18);
+                setBalance(balanceMove.toString());
+            } catch (error) {
+                console.error('Lỗi khi lấy số dư:', error);
+            }
+        };
+        getBalance(walletAddress);
+    }, []);
+
     const location = useLocation();
     const page = location.state?.page;
     const navigate = useNavigate();
@@ -74,7 +85,7 @@ const AccountBalance = () => {
                                     <option value="Move" className="bg-white text-[#8f8f8f]">Move</option>
                                 </select>
                             </div>
-                            <div className="hidden">
+                            <div >
                                 <label
                                     className=" block text-white text-xl font-semibold mb-2 text-gray-700"
                                 >Balance</label>
@@ -82,8 +93,8 @@ const AccountBalance = () => {
                                     className={`w-full px-5 py-4 text-[#8f8f8f] text-[20px] border border-[#5a5a5a] rounded-lg bg-[#0e0f0e] `}
                                     type="text"
                                     max={10000000000}
-                                    onChange={handleBalance}
-                                    onKeyPress={handleKeyPress}
+                                    value={balance}
+                                    readOnly
                                 />
                             </div>
                         </div>
@@ -99,5 +110,4 @@ const AccountBalance = () => {
         </>
     );
 }
-
 export default AccountBalance;
